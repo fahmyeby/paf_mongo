@@ -1,0 +1,38 @@
+1. GET /games
+    localhost:8080/api/games
+    Defaults: limit 25, offset 0
+    to set localhost:8080/api/games?limit=<>&offset=<>
+
+2. GET games/rank
+    localhost:8080/api/games/rank
+    Defaults: limit 25, offset 0
+    to set localhost:8080/api/games/rank?limit=<>&offset=<>
+
+3. GET game/{id}
+    localhost:8080/api/game/{id} -- {id} is ObjectId string
+
+4. POST /review
+    localhost:8080/api/review
+    form encoded
+    Fields:
+    name, rating, comment, gameId
+
+5. PUT /review/{id}
+    localhost:8080/api/review/{id} where {id} is review id
+    Add payload:
+    {
+  "rating": 9,
+  "comment": "Updated comment: Amazing game!"
+    }
+
+6. GET /api/review/{id}
+    localhost:8080/api/review/{id} where {id} is review id
+
+7. GET /api/review/{id}/history
+    localhost:8080/api/review/{id}/history where {id} is review id
+
+8. GET /api/game/highest
+    localhost:8080/api/game/highest
+
+9. GET /api/game/<game_id>/reviews
+    localhost:8080/api/game/<game_id>/reviews

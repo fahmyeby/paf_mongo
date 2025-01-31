@@ -1,0 +1,23 @@
+1. Create Dockerfile
+
+2. Atlas
+    - DB Access -> Check Password
+    - Cluster -> Driver -> copy mongodb+srv ...
+    * replace with Password
+
+3. In 3T -> Connect -> New connection
+    - Input uri from 2 and test connection
+
+4. CMD import to online DB
+    mongoimport --uri="mongodb+srv..."
+    --db="<dbname> --collections="<collection>"
+    --file="file.json" --jsonArray
+
+    in uri, change password, add db name in 
+    .net/<dbname>?...
+
+5. Railway
+    - Create empty service
+    - Add variable SPRING_DATA_MONGODB_URI
+    - Add uri from 4
+    - Railway link, up
