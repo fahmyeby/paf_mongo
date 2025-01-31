@@ -3,9 +3,14 @@ package com.example.paf_ws26.repository;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -46,9 +51,19 @@ public class GameRepository {
     public Long countAllGames(){
         return mongoTemplate.count(new Query(), games);
     }
-    // find reviews by game id
-    public List<Document> findReviewsByGameId(int gameId) {
-        Query query = Query.query(Criteria.where("gameId").is(gameId));
-        return mongoTemplate.find(query, Document.class, reviews);
-    }
+
+    // find game with reviews
+    public Document findGameWithReviews(String gameId) {
+    MatchOperation matchGame = Aggregation.match(Criteria.where("_id").is(new ObjectId(gameId)));
+    LookupOperation lookupReviews = LookupOperation.newLookup()
+            .from("reviews")
+            .localField("gid")
+            .foreignField("gameId")
+            .as("reviews");
+
+    Aggregation pipeline = Aggregation.newAggregation(matchGame, lookupReviews);
+    AggregationResults<Document> results = mongoTemplate.aggregate(pipeline, "games", Document.class);
+
+    return results.getUniqueMappedResult();
+}
 }

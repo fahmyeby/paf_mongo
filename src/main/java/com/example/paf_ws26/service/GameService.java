@@ -93,22 +93,22 @@ public class GameService {
     }
 
     public Map<String, Object> getGameWithReviews(String gameId) {
-        Document game = gameRepository.findGameById(gameId);
+        Document gameWithReviews = gameRepository.findGameWithReviews(gameId);
         Map<String, Object> response = new LinkedHashMap<>();
 
-        if (game != null) {
-            response.put("game_id", game.getObjectId("_id").toString());
-            response.put("name", game.getString("name"));
-            response.put("year", game.getInteger("year"));
-            response.put("rank", game.getInteger("ranking"));
-            // response.put("average", calculateAverageRating(game)); // Implement this
-            // method
-            response.put("users_rated", game.getInteger("users_rated"));
-            response.put("url", game.getString("url"));
-            response.put("thumbnail", game.getString("image"));
+        if (gameWithReviews != null) {
+            response.put("game_id", gameWithReviews.getObjectId("_id").toString());
+            response.put("name", gameWithReviews.getString("name"));
+            response.put("year", gameWithReviews.getInteger("year"));
+            response.put("rank", gameWithReviews.getInteger("ranking"));
+            // response.put("average", calculateAverageRating(gameWithReviews)); //
+            // Implement this method
+            response.put("users_rated", gameWithReviews.getInteger("users_rated"));
+            response.put("url", gameWithReviews.getString("url"));
+            response.put("thumbnail", gameWithReviews.getString("image"));
 
-            // Get reviews for the game
-            List<Document> reviews = reviewRepository.findReviewsByGameId(game.getInteger("gid"));
+            // Extract review links
+            List<Document> reviews = gameWithReviews.getList("reviews", Document.class);
             List<String> reviewLinks = new ArrayList<>();
             for (Document review : reviews) {
                 reviewLinks.add("/review/" + review.getObjectId("_id").toString());

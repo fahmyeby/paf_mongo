@@ -6,6 +6,10 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.LimitOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -35,13 +39,15 @@ public class ReviewRepository {
     }
 
     // save new review
-    // MongoDB Query: db.reviews.insertOne({ gameId: <gameId>, rating: <rating>, comment: "<comment>" })
+    // MongoDB Query: db.reviews.insertOne({ gameId: <gameId>, rating: <rating>,
+    // comment: "<comment>" })
     public Document saveReview(Document review) {
         return mongoTemplate.save(review, reviews);
     }
 
     // update review
-    // MongoDB Query: db.reviews.findOneAndReplace({ _id: ObjectId("<id>") }, { gameId: <gameId>, rating: <newRating>, comment: "<newComment>" })
+    // MongoDB Query: db.reviews.findOneAndReplace({ _id: ObjectId("<id>") }, {
+    // gameId: <gameId>, rating: <newRating>, comment: "<newComment>" })
     public Document updateReview(String id, Document updatedReview) {
         Query query = Query.query(Criteria.where("_id").is(id));
         return mongoTemplate.findAndReplace(query, updatedReview, reviews);
@@ -57,12 +63,18 @@ public class ReviewRepository {
 
     // find review with highest/lowest rating
     public List<Document> findReviewsWithHighestRating() {
-        Query query = new Query().with(Sort.by(Sort.Direction.DESC, "rating")).limit(1);
-        return mongoTemplate.find(query, Document.class, "reviews");
+        SortOperation sortByRating = Aggregation.sort(Sort.by(Sort.Direction.DESC, "rating"));
+        LimitOperation limit = Aggregation.limit(1);
+        Aggregation pipeline = Aggregation.newAggregation(sortByRating, limit);
+        AggregationResults<Document> results = mongoTemplate.aggregate(pipeline, "reviews", Document.class);
+        return results.getMappedResults();
     }
-    
+
     public List<Document> findReviewsWithLowestRating() {
-        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "rating")).limit(1);
-        return mongoTemplate.find(query, Document.class, "reviews");
+        SortOperation sortByRating = Aggregation.sort(Sort.by(Sort.Direction.ASC, "rating"));
+        LimitOperation limit = Aggregation.limit(1);
+        Aggregation pipeline = Aggregation.newAggregation(sortByRating, limit);
+        AggregationResults<Document> results = mongoTemplate.aggregate(pipeline, "reviews", Document.class);
+        return results.getMappedResults();
     }
 }
